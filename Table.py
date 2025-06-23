@@ -9,24 +9,31 @@ command = ["adrow", "adcol", "set", "rm", "save", "exit"]
 #Making Empey Data Table
 data[0][0] = "MyFile"
 for i in range(1, row):
-    data[i][0] = f"r{i}"
+    data[i][0] = f"row{i}"
 for j in range(1, column):
-    data[0][j] = f"c{j}"
+    data[0][j] = f"col{j}"
 
 #Saving Data in Txt
 def Saving():
     global row, column, data
-    col_widths = [max(len(data[i][j]) for j in range(row)) for i in range(column)]
+
+    maxstring = 0
+
+    for i in range(row):
+        for j in range(column):
+            if (maxstring < len(data[i][j])):
+                maxstring = len(data[i][j])
     
     file = open(f"{data[0][0]}.txt", "w")
 
     for i in range(row):
         output = ""
         for j in range(column):
-            cell = str(data[i][j]).ljust(col_widths[j])
-            output += f"| {cell} "
-        output += "|"
-        file.write(output+"\n")
+            cell = str(data[i][j]).rjust(maxstring)
+            output += f"| {cell}"
+        output += " |\n"
+        file.write(output)
+        
     file.close()
     
 def main(stdscr):
@@ -47,15 +54,20 @@ def main(stdscr):
     status_win.scrollok(True)
 
     def printdata():
-        col_widths = [max(len(data[i][j]) for i in range(row)) for j in range(column)]
+        maxstring = 0
+
+        for i in range(row):
+            for j in range(column):
+                if (maxstring < len(data[i][j])):
+                    maxstring = len(data[i][j])
         
         display_win.clear()
         for i in range(row):
             output = ""
             for j in range(column):
-                cell = str(data[i][j]).ljust(col_widths[j])
-                output += f"| {cell}"
-                output += " |"
+                cell = str(data[i][j]).rjust(maxstring)
+                output += f"| {cell} "
+            output += "|"
             display_win.addstr(output + "\n")
         display_win.refresh()
 
@@ -86,7 +98,7 @@ def main(stdscr):
                 else:
                     data.append(['0' for _ in range(column)])
                     row += 1
-                    data[len(data)-1][0] = f"r{row-1}"
+                    data[len(data)-1][0] = f"row{row-1}"
             elif (inputcommand[0] == "adcol"): #"adcolumn" Command
                 if (len(inputcommand) != 1):
                     status_win.addstr("<Error> : Argument Error")
@@ -95,7 +107,7 @@ def main(stdscr):
                     for r in data:
                         r.append('0')
                     column += 1
-                    data[0][column-1] = f"c{column-1}"
+                    data[0][column-1] = f"col{column-1}"
             elif (inputcommand[0] == "set"): #"setdata" Command
                 if (len(inputcommand) != 4):
                     status_win.addstr("<Error> : Argument Error")
